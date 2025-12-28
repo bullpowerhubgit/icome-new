@@ -1,0 +1,9 @@
+{
+  "name": "Nexus AI: Universal Income & Agent Operations",
+  "description": "A high-performance AI operations center for managing automated agents, analyzing income streams, and orchestrating complex tasks through an integrated Gemini-powered interface.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
