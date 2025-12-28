@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Youtube, Play, Sparkles, FileText, Video, 
   BarChart3, Clock, Send, Plus, RefreshCw, 
   Trash2, ExternalLink, TrendingUp, Info,
   CheckCircle, Globe, Share2, MousePointer2,
   Calendar, ListFilter, AlertCircle, Rocket,
-  ShieldAlert
+  ShieldAlert, Zap, ZapOff
 } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -30,7 +30,7 @@ interface QueueItem {
 }
 
 const YouTubeAutomator: React.FC = () => {
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState('Future of Robotics');
   const [script, setScript] = useState('');
   const [metadata, setMetadata] = useState<{ title: string; description: string; tags: string }>({
     title: '',
@@ -43,20 +43,39 @@ const YouTubeAutomator: React.FC = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'create' | 'analytics' | 'queue'>('create');
   const [publishingStep, setPublishingStep] = useState<number>(0); // 0: idle, 1: generating, 2: ready
+  const [autopilot, setAutopilot] = useState(false);
 
   const [queue, setQueue] = useState<QueueItem[]>([
     { id: '1', title: 'Quantum Computing Explained', topic: 'Quantum Physics', status: 'Ready', scheduledFor: 'Today, 18:00' },
     { id: '2', title: 'Daily Nexus Tech Roundup', topic: 'Tech News', status: 'Drafting', scheduledFor: 'Tomorrow, 09:00' },
   ]);
 
-  const generateFullContent = async () => {
-    if (!topic.trim()) return;
+  const autopilotInterval = useRef<any>(null);
+
+  useEffect(() => {
+    if (autopilot) {
+      autopilotInterval.current = setInterval(() => {
+        if (!isGeneratingScript && !isProducingVideo) {
+          const autoTopics = ["AI Trends 2026", "SpaceX Mars Update", "Next-Gen Energy Solutions", "Biohacking Basics"];
+          const nextTopic = autoTopics[Math.floor(Math.random() * autoTopics.length)];
+          setTopic(nextTopic);
+          generateFullContent(nextTopic, true);
+        }
+      }, 30000); // Trigger a full loop every 30s for demo
+    } else {
+      clearInterval(autopilotInterval.current);
+    }
+    return () => clearInterval(autopilotInterval.current);
+  }, [autopilot, isGeneratingScript, isProducingVideo]);
+
+  const generateFullContent = async (targetTopic: string = topic, autoPublish: boolean = false) => {
+    if (!targetTopic.trim()) return;
     setPublishingStep(1);
     setIsGeneratingScript(true);
     try {
       // 1. Generate Script
       const scriptRes = await geminiService.getChatResponse(
-        `Generate a viral YouTube script for a 5-minute video about "${topic}". Include a high-energy hook, 3 main narrative arcs, a strong call to action, and visual scene descriptions.`,
+        `Generate a viral YouTube script for a 5-minute video about "${targetTopic}". Include a high-energy hook, 3 main narrative arcs, a strong call to action, and visual scene descriptions.`,
         []
       );
       setScript(scriptRes.text);
@@ -64,7 +83,7 @@ const YouTubeAutomator: React.FC = () => {
       // 2. Generate Metadata
       setIsGeneratingMetadata(true);
       const metaRes = await geminiService.getChatResponse(
-        `For a YouTube video about "${topic}" with this script: "${scriptRes.text.substring(0, 500)}...", generate a click-worthy SEO Title, a detailed 3-paragraph Description, and 15 optimized Tags. Return as plain text clearly labeled.`,
+        `For a YouTube video about "${targetTopic}" with this script: "${scriptRes.text.substring(0, 500)}...", generate a click-worthy SEO Title, a detailed 3-paragraph Description, and 15 optimized Tags. Return as plain text clearly labeled.`,
         []
       );
       
@@ -72,13 +91,26 @@ const YouTubeAutomator: React.FC = () => {
       const descMatch = metaRes.text.match(/Description:?\s*([\s\S]*?)(?=Tags:|$)/i);
       const tagsMatch = metaRes.text.match(/Tags:?\s*(.*)/i);
 
-      setMetadata({
-        title: titleMatch ? titleMatch[1].trim() : `${topic} Mastery`,
-        description: descMatch ? descMatch[1].trim() : `Deep dive into ${topic}. Like and Subscribe!`,
-        tags: tagsMatch ? tagsMatch[1].trim() : `${topic}, education, nexus ai`
-      });
-
+      const newMeta = {
+        title: titleMatch ? titleMatch[1].trim() : `${targetTopic} Mastery`,
+        description: descMatch ? descMatch[1].trim() : `Deep dive into ${targetTopic}. Like and Subscribe!`,
+        tags: tagsMatch ? tagsMatch[1].trim() : `${targetTopic}, education, nexus ai`
+      };
+      setMetadata(newMeta);
       setPublishingStep(2);
+
+      if (autoPublish) {
+        // Automatically schedule in autopilot mode
+        const newItem: QueueItem = {
+          id: Math.random().toString(36).substr(2, 9),
+          title: newMeta.title,
+          topic: targetTopic,
+          status: 'Ready',
+          scheduledFor: 'Scheduled by Autopilot'
+        };
+        setQueue(prev => [newItem, ...prev]);
+      }
+
     } catch (e) {
       console.error(e);
     } finally {
@@ -92,8 +124,8 @@ const YouTubeAutomator: React.FC = () => {
     setIsProducingVideo(true);
     try {
       const hookMatch = script.match(/Hook:?\s*(.*?)(?=\n|$)/i);
-      const prompt = hookMatch ? hookMatch[1] : `Cinematic high-quality video about ${topic}`;
-      const res = await geminiService.generateVideo(prompt, '16:9');
+      const promptText = hookMatch ? hookMatch[1] : `Cinematic high-quality video about ${topic}`;
+      const res = await geminiService.generateVideo(promptText, '16:9');
       setVideoUrl(res.url);
     } catch (e) {
       console.error(e);
@@ -112,11 +144,6 @@ const YouTubeAutomator: React.FC = () => {
     };
     setQueue(prev => [newItem, ...prev]);
     setActiveTab('queue');
-    // Reset current
-    setTopic('');
-    setScript('');
-    setMetadata({ title: '', description: '', tags: '' });
-    setVideoUrl(null);
     setPublishingStep(0);
   };
 
@@ -130,16 +157,25 @@ const YouTubeAutomator: React.FC = () => {
           </h1>
           <p className="text-slate-500 mt-1 font-medium">End-to-end autonomous channel orchestration powered by Gemini and Veo.</p>
         </div>
-        <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-2xl shadow-xl">
-          {(['create', 'analytics', 'queue'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-widest ${activeTab === tab ? 'bg-red-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+           <button 
+             onClick={() => setAutopilot(!autopilot)}
+             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border ${autopilot ? 'bg-red-500/10 border-red-500 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+           >
+             {autopilot ? <Zap size={14} className="fill-red-400" /> : <ZapOff size={14} />}
+             {autopilot ? 'CHANNEL AUTOPILOT: ON' : 'CHANNEL AUTOPILOT: OFF'}
+           </button>
+          <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-2xl shadow-xl">
+            {(['create', 'analytics', 'queue'] as const).map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-widest ${activeTab === tab ? 'bg-red-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -161,7 +197,7 @@ const YouTubeAutomator: React.FC = () => {
                     className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-sm outline-none focus:ring-2 focus:ring-red-500/50 font-medium placeholder:text-slate-700"
                   />
                   <button 
-                    onClick={generateFullContent}
+                    onClick={() => generateFullContent()}
                     disabled={isGeneratingScript || !topic.trim()}
                     className="absolute right-2 top-2 p-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white rounded-xl shadow-lg transition-all"
                   >
@@ -216,7 +252,6 @@ const YouTubeAutomator: React.FC = () => {
 
               <div className="p-4 bg-slate-800/30 rounded-2xl border border-slate-700/50">
                 <h4 className="text-[10px] font-bold text-slate-500 mb-2 flex items-center gap-2 uppercase tracking-tighter">
-                  {/* Fixed error: ShieldAlert was missing from lucide-react imports */}
                   <ShieldAlert size={12} className="text-amber-500" /> Channel Policy Compliance
                 </h4>
                 <p className="text-[9px] text-slate-600 font-medium">All generated content is audited for YouTube Fair Use and Advertiser-Friendly guidelines automatically.</p>
@@ -233,8 +268,8 @@ const YouTubeAutomator: React.FC = () => {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Preview Player</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                  <span className="text-[10px] font-mono text-red-500">LIVE PRODUCTION</span>
+                  <div className={`w-2 h-2 rounded-full ${autopilot ? 'bg-red-500 animate-pulse' : 'bg-slate-700'}`}></div>
+                  <span className={`text-[10px] font-mono ${autopilot ? 'text-red-500' : 'text-slate-500'}`}>{autopilot ? 'LIVE PRODUCTION' : 'STANDBY'}</span>
                 </div>
               </div>
 

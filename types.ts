@@ -1,5 +1,4 @@
-
-export type TabId = 'dashboard' | 'agents' | 'chat' | 'code' | 'media' | 'live' | 'analytics' | 'settings' | 'github' | 'youtube';
+export type TabId = 'dashboard' | 'agents' | 'marketplace' | 'printify' | 'youtube' | 'ebook' | 'arbitrage' | 'wallet' | 'chat' | 'code' | 'analytics' | 'compliance' | 'settings' | 'diagnostics' | 'media' | 'live';
 
 export interface Message {
   id: string;
@@ -35,4 +34,12 @@ export interface SystemStats {
   memory: number;
   network: number;
   uptime: string;
+}
+
+export interface Transaction {
+  id: string;
+  source: string;
+  amount: number;
+  status: 'pending' | 'cleared' | 'payout';
+  timestamp: string;
 }

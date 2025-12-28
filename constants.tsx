@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   BarChart3, 
@@ -12,57 +11,54 @@ import {
   Mic,
   Github,
   Youtube,
+  Store,
+  Shirt,
+  Wallet,
+  ShieldCheck,
+  Search,
+  HardDrive,
+  BookOpen
 } from 'lucide-react';
 import { Agent, TabId } from './types';
 
 export const NAV_ITEMS = [
-  { id: 'dashboard' as TabId, label: 'Dashboard', icon: <BarChart3 size={20} />, color: 'blue' },
-  { id: 'agents' as TabId, label: 'Agent Center', icon: <Bot size={20} />, color: 'purple' },
-  { id: 'youtube' as TabId, label: 'YouTube Studio', icon: <Youtube size={20} />, color: 'red' },
-  { id: 'chat' as TabId, label: 'AI Assistant', icon: <MessageSquare size={20} />, color: 'pink' },
-  { id: 'code' as TabId, label: 'Agent Lab', icon: <Code size={20} />, color: 'emerald' },
-  { id: 'media' as TabId, label: 'Media Studio', icon: <ImageIcon size={20} />, color: 'cyan' },
-  { id: 'live' as TabId, label: 'Live Comms', icon: <Mic size={20} />, color: 'orange' },
-  { id: 'github' as TabId, label: 'Source Control', icon: <Github size={20} />, color: 'slate' },
-  { id: 'analytics' as TabId, label: 'Analytics', icon: <Activity size={20} />, color: 'amber' },
-  { id: 'settings' as TabId, label: 'Settings', icon: <Settings size={20} />, color: 'slate' },
+  { id: 'dashboard' as TabId, label: 'Control Center', icon: <BarChart3 size={18} />, color: 'blue' },
+  { id: 'agents' as TabId, label: 'Agent Fleet', icon: <Bot size={18} />, color: 'purple' },
+  { id: 'wallet' as TabId, label: 'Payout Hub', icon: <Wallet size={18} />, color: 'emerald' },
+  { id: 'marketplace' as TabId, label: 'Omni-Merchant', icon: <Store size={18} />, color: 'pink' },
+  { id: 'ebook' as TabId, label: 'EBook Pilot', icon: <BookOpen size={18} />, color: 'amber' },
+  { id: 'printify' as TabId, label: 'POD Logic', icon: <Shirt size={18} />, color: 'blue' },
+  { id: 'youtube' as TabId, label: 'YT Pilot', icon: <Youtube size={18} />, color: 'red' },
+  { id: 'arbitrage' as TabId, label: 'Arbitrage Bot', icon: <Search size={18} />, color: 'cyan' },
+  { id: 'analytics' as TabId, label: 'Intelligence', icon: <Activity size={18} />, color: 'amber' },
+  { id: 'compliance' as TabId, label: 'Legal/Tax', icon: <ShieldCheck size={18} />, color: 'slate' },
+  { id: 'diagnostics' as TabId, label: 'System Check', icon: <HardDrive size={18} />, color: 'emerald' },
+  { id: 'settings' as TabId, label: 'Nexus Config', icon: <Settings size={18} />, color: 'slate' },
 ];
 
 export const INITIAL_AGENTS: Agent[] = [
   {
-    id: 'agent-y1',
-    name: 'YouTube Pilot',
-    category: 'Content Automation',
+    id: 'agent-arb-1',
+    name: 'Arbitrage Scanner',
+    category: 'Market Inefficiency',
     status: 'idle',
-    dailyEarnings: 55.20,
-    totalEarnings: 3120.40,
-    uptime: 99.1,
-    description: 'Autonomous channel manager that scripts, produces, and optimizes faceless high-retention videos.',
-    icon: 'Youtube',
-    config: { niche: 'Sci-Fi Documentaries', targetViews: 10000 }
-  },
-  {
-    id: 'agent-1',
-    name: 'Arbitrage Oracle',
-    category: 'DeFi Trading',
-    status: 'idle',
-    dailyEarnings: 42.50,
-    totalEarnings: 1240.80,
+    dailyEarnings: 45.20,
+    totalEarnings: 820.50,
     uptime: 99.9,
-    description: 'Scans decentralized exchanges for price discrepancies and executes flash-loan arbitrage trades.',
-    icon: 'Zap',
-    config: { exchange: 'Uniswap/Sushiswap', threshold: 0.5 }
+    description: 'Scans major retailers for price discrepancies and auto-posts flipping opportunities to Discord/Telegram.',
+    icon: 'Search',
+    config: { markets: ['Amazon', 'eBay', 'StockX'] }
   },
   {
-    id: 'agent-2',
-    name: 'SEO Content Weaver',
-    category: 'Affiliate Marketing',
+    id: 'agent-p1',
+    name: 'POD Orchestrator',
+    category: 'Logistics',
     status: 'idle',
-    dailyEarnings: 12.80,
-    totalEarnings: 450.20,
-    uptime: 98.4,
-    description: 'Generates high-ranking product reviews and informative articles for niche affiliate blogs.',
-    icon: 'FileText',
-    config: { niche: 'Eco-Friendly Tech', frequency: 'Daily' }
+    dailyEarnings: 112.50,
+    totalEarnings: 5210.20,
+    uptime: 99.7,
+    description: 'Autonomous apparel designer and Printify manager.',
+    icon: 'Shirt',
+    config: { blueprints: ['T-Shirts', 'Hoodies'], margin_target: 40 }
   }
 ];

@@ -3,8 +3,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI Ops</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Nexus AI Ops | Neural Command</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
@@ -12,6 +15,8 @@
             font-family: 'Inter', sans-serif;
             margin: 0;
             overflow: hidden;
+            background-color: #020617;
+            -webkit-tap-highlight-color: transparent;
         }
         .font-mono {
             font-family: 'Fira Code', monospace;
@@ -24,11 +29,21 @@
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #475569;
+            background: #334155;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
+            background: #475569;
+        }
+        /* Mobile optimization for smooth scrolling */
+        .custom-scrollbar {
+            -webkit-overflow-scrolling: touch;
+        }
+        /* Hide scrollbars on mobile if needed */
+        @media (max-width: 768px) {
+            ::-webkit-scrollbar {
+                display: none;
+            }
         }
     </style>
 <script type="importmap">
